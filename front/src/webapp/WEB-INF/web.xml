@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app>
+    <display-name>Collection museum</display-name>
+    <distributable></distributable>
+
+    <servlet-mapping>
+        <servlet-name>com.faliorn.collectionmuseum.api.CollectionMuseumApi</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+</web-app>

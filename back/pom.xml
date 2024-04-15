@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.faliorn.collectionmuseum</groupId>
+        <artifactId>main</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../main</relativePath>
+    </parent>
+
+    <artifactId>back</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Collection Museum Back</name>
+    <description>Backend for the collection museum project</description>
+
+
+    <properties>
+        <!-- Maven plugin versions -->
+        <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
+        <maven-frontend-plugin.version>1.15.0</maven-frontend-plugin.version>
+
+        <!-- Unnecessary, but needed to remove warnings -->
+        <java.version>21</java.version>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+    </properties>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+    </dependencies>
+</project>

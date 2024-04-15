@@ -1,0 +1,5 @@
+.vscode
+target
+.angular
+/modules
+/front/node
