@@ -4,7 +4,7 @@
     <distributable></distributable>
 
     <servlet-mapping>
-        <servlet-name>com.faliorn.collectionmuseum.api.CollectionMuseumApi</servlet-name>
+        <servlet-name>com.renegades.collectionmuseum.api.CollectionMuseumApi</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
 
