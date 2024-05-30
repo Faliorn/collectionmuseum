@@ -1,5 +1,7 @@
 package com.renegades.core.controllers;
 
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.renegades.core.api.AuthRequest;
+import com.renegades.core.model.UserEntity;
 import com.renegades.core.services.JwtService;
 import com.renegades.core.services.UserService;
 
@@ -19,67 +22,51 @@ import com.renegades.core.services.UserService;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final UserService service;
-    private final JwtService jwtService;
+    private final ObjectProvider<UserService> userServiceProvider;
+    private final ObjectProvider<JwtService> jwtServiceProvider;
     private final AuthenticationManager authenticationManager;
 
-    AuthController(UserService service, JwtService jwtService,
+    AuthController(ObjectProvider<UserService> userServiceProvider, ObjectProvider<JwtService> jwtServiceProvider,
             AuthenticationManager authenticationManager) {
-        this.service = service;
-        this.jwtService = jwtService;
+        this.userServiceProvider = userServiceProvider;
+        this.jwtServiceProvider = jwtServiceProvider;
         this.authenticationManager = authenticationManager;
     }
 
-    /*
-     * @PostMapping("/register")
-     * public ResponseEntity<String> addNewUser(@RequestBody UserInfo userInfo) {
-     * String response = service.addUser(userInfo);
-     * return ResponseEntity.status(HttpStatus.CREATED).body(response);
-     * }
-     */
+    private UserService getUserService() {
+        return userServiceProvider.getObject();
+    }
 
     @PostMapping("/generateToken")
     public ResponseEntity<String> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
         if (authentication.isAuthenticated()) {
-            String token = jwtService.generateToken(authRequest.getUsername());
+            String token = jwtServiceProvider.getObject().generateToken(authRequest.getUsername());
             return ResponseEntity.ok(token);
         } else {
             throw new UsernameNotFoundException("Invalid user request!");
         }
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody UserEntity userRegistrationDto) {
+        Boolean alreadyExists = true;
+        try {
+            getUserService().loadUserByUsername(userRegistrationDto.getUsername());
+        } catch (UsernameNotFoundException unfe) {
+            alreadyExists = false;
+        }
+        if (alreadyExists) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
+        }
+
+        UserEntity createdUser = getUserService().create(userRegistrationDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    }
+
     @GetMapping("/hello")
     public String hello() {
         return "Hello World!";
     }
-
-    /*
-     * 
-     * @Autowired
-     * private AuthenticationManager authenticationManager;
-     * 
-     * @Autowired
-     * private CustomUserDetailsService userDetailsService;
-     * 
-     * @Autowired
-     * private JwtUtil jwtUtil;
-     * 
-     * @PostMapping
-     * public ResponseEntity<?> createAuthenticationToken(@RequestBody
-     * AuthenticationRequest authenticationRequest)
-     * throws Exception {
-     * 
-     * Authentication authentication = authenticationManager.authenticate(
-     * new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(),
-     * authenticationRequest.getPassword()));
-     * 
-     * final UserDetails userDetails =
-     * userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-     * final String jwt = jwtUtil.generateToken(userDetails);
-     * 
-     * return ResponseEntity.ok(new AuthenticationResponse(jwt));
-     * }
-     */
 }

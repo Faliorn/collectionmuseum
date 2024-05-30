@@ -2,6 +2,7 @@ package com.renegades.core.security;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,27 +20,29 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.renegades.core.api.JwtRequestFilter;
+import com.renegades.core.services.UserService;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
     private final JwtRequestFilter authFilter;
+    private final ObjectProvider<UserService> userServiceProvider;
 
-    public SecurityConfig(JwtRequestFilter authFilter) {
+    public SecurityConfig(JwtRequestFilter authFilter, ObjectProvider<UserService> userServiceProvider) {
         this.authFilter = authFilter;
+        this.userServiceProvider = userServiceProvider;
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationProvider authenticationProvider)
-            throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers("/auth/generateToken", "/auth/register").permitAll()
                         .requestMatchers("/auth/hello").authenticated())
                 .httpBasic(withDefaults()).csrf((csrf) -> csrf.disable())
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider)
+                .authenticationProvider(authenticationProvider(userServiceProvider.getObject()))
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

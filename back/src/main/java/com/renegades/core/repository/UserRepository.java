@@ -10,4 +10,6 @@ import com.renegades.core.model.UserEntity;
 public interface UserRepository extends BaseRepository<UserEntity> {
 
     Optional<UserEntity> findByEmail(String email);
+
+    Optional<UserEntity> findByUsername(String username);
 }
